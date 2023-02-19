@@ -5,5 +5,6 @@
 	[LastName] NVARCHAR(50) NOT NULL,
 	[Email] NVARCHAR(80) NOT NULL,
 	[Password] NVARCHAR(100) NOT NULL,
-	[IsDeleted] BIT DEFAULT 0
+	[IsDeleted] BIT DEFAULT 0,
+	[IsAdmin] BIT DEFAULT 0
 )

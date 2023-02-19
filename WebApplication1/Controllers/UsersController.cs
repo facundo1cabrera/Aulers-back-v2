@@ -2,6 +2,8 @@
 using AulersAPI.Infrastructure;
 using AulersAPI.Models;
 using AulersAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AulersAPI.Controllers
@@ -20,6 +22,7 @@ namespace AulersAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _usersRepository.GetUsers();
@@ -30,14 +33,14 @@ namespace AulersAPI.Controllers
         [Route("register")]
         public async Task<IActionResult> CreateUser(RegisterDTO registerDTO)
         {
-            var success = await _userService.CreateUser(registerDTO);
-            if (success)
+            var registerResponse = await _userService.CreateUser(registerDTO);
+            if (registerResponse != null)
             {
-                return Ok();
+                return Ok(registerResponse);
             } 
             else
             {
-                return BadRequest();
+                return BadRequest("You already have an account");
             }
         }
 
@@ -45,21 +48,18 @@ namespace AulersAPI.Controllers
         [Route("login")]
         public async Task<IActionResult> LoginUser(LoginDTO loginDTO)
         {
-            var user = await _usersRepository.GetUser(loginDTO.Email);
-            if (user == null)
-            {
-                return BadRequest();
-            }
+            var loginResponse = await _userService.Login(loginDTO);
 
-            if (user.Password == loginDTO.Password)
-            {
-                return Ok();
-            }
-            else
+            if (loginResponse == null)
             {
                 return NotFound();
+            } 
+            else
+            {
+                return Ok(loginResponse);
             }
-
         }
+
+
     }
 }

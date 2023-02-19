@@ -36,7 +36,8 @@ SELECT
     U.FirstName,
     U.LastName,
     U.Email,
-    U.Password
+    U.Password,
+    U.IsAdmin
 FROM
     [USERS] U
 WHERE
