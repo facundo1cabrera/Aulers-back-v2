@@ -1,7 +1,8 @@
-﻿using AulersAPI.Models;
+﻿using AulersAPI.Infrastructure.Interfaces;
+using AulersAPI.Models;
 using Dapper;
 
-namespace AulersAPI.Infrastructure
+namespace AulersAPI.Infrastructure.Classes
 {
     public class UsersRepository : IUsersRepository
     {
@@ -27,10 +28,10 @@ FROM
             return users;
         }
 
-        public async Task<User> GetUser(string userEmail)
+        public async Task<User> GetUserByEmail(string userEmail)
         {
             using var connection = _connectionFactory.GetConnection();
-            var user = (await connection.QueryAsync<User>(@"
+            var user = await connection.QueryFirstOrDefaultAsync<User>(@"
 SELECT 
     U.Id,
     U.FirstName,
@@ -42,13 +43,37 @@ FROM
     [USERS] U
 WHERE
     U.Email=@userEmail",
-    new
-    {
-        @userEmail = userEmail
-    })).FirstOrDefault();
+            new
+            {
+                @userEmail = userEmail
+            });
 
             return user;
         }
+
+        public async Task<User> GetUserById(int userId)
+        {
+            using var connection = _connectionFactory.GetConnection();
+            var user = await connection.QueryFirstOrDefaultAsync<User>(@"
+SELECT 
+    U.Id,
+    U.FirstName,
+    U.LastName,
+    U.Email,
+    U.Password,
+    U.IsAdmin
+FROM
+    [USERS] U
+WHERE
+    U.Id=@userId",
+            new
+            {
+                @userId = userId
+            });
+
+            return user;
+        }
+
 
         public async Task CreateUser(User user)
         {

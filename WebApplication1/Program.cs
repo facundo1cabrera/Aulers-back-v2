@@ -1,5 +1,7 @@
 using AulersAPI.Infrastructure;
-using AulersAPI.Services;
+using AulersAPI.Infrastructure.Classes;
+using AulersAPI.Infrastructure.Interfaces;
+using AulersAPI.Services.Classes;
 using AulersAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -65,9 +67,11 @@ builder.Services.AddAuthorization(options =>
 // Inject app repositories
 builder.Services.AddTransient<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddTransient<IUsersRepository, UsersRepository>();
+builder.Services.AddTransient<IMeasurementsRepository, MeasurementsRepository>();
 
 // Inject app services
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IMeasurementsService, MeasurementsService>();
 
 var app = builder.Build();
 

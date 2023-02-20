@@ -1,5 +1,6 @@
 ﻿using AulersAPI.ApiModels;
 using AulersAPI.Infrastructure;
+using AulersAPI.Infrastructure.Interfaces;
 using AulersAPI.Models;
 using AulersAPI.Services.Interfaces;
 using AulersAPI.Utils;
@@ -8,22 +9,24 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace AulersAPI.Services
+namespace AulersAPI.Services.Classes
 {
     public class UserService : IUserService
     {
         private readonly IUsersRepository _usersRepository;
+        private readonly IMeasurementsService _measurementsService;
         private readonly IConfiguration _config;
 
-        public UserService(IUsersRepository usersRepository, IConfiguration config)
+        public UserService(IUsersRepository usersRepository, IMeasurementsService measurementsService, IConfiguration config)
         {
             _usersRepository = usersRepository;
+            _measurementsService = measurementsService;
             _config = config;
         }
 
         public async Task<AuthResponse> CreateUser(RegisterDTO registerDTO)
         {
-            var userDB = await _usersRepository.GetUser(registerDTO.Email);
+            var userDB = await _usersRepository.GetUserByEmail(registerDTO.Email);
             if (userDB != null)
             {
                 return null;
@@ -38,12 +41,21 @@ namespace AulersAPI.Services
             };
 
             await _usersRepository.CreateUser(user);
+
+            var userInserted = await _usersRepository.GetUserByEmail(user.Email);
+            await _measurementsService.CreateMeasurementsForUser(userInserted.Id);
+
             return CreateToken(registerDTO.Email, false);
         }
 
         public async Task<AuthResponse> Login(LoginDTO loginDTO)
         {
-            var userDB = await _usersRepository.GetUser(loginDTO.Email);
+            var userDB = await _usersRepository.GetUserByEmail(loginDTO.Email);
+
+            if (userDB == null)
+            {
+                return null;
+            }
 
             var samePassword = BCrypt.Net.BCrypt.Verify(loginDTO.Password, userDB.Password);
 
@@ -89,6 +101,20 @@ namespace AulersAPI.Services
                 Token = new JwtSecurityTokenHandler().WriteToken(token), 
                 Expiration = DateTime.Now.AddDays(1)
             };
+        }
+
+        public async Task<bool> ValidateUserExists(int userId)
+        {
+            var userDB = await _usersRepository.GetUserById(userId);
+
+            if (userDB == null)
+            {
+                return false;
+            } 
+            else
+            {
+                return true;
+            }
         }
     }
 }

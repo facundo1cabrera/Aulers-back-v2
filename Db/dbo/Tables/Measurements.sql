@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[Sizes]
+﻿CREATE TABLE [dbo].[Measurements]
 (
 	[UserId] INT NOT NULL PRIMARY KEY,
 	[Gender] CHAR NULL,

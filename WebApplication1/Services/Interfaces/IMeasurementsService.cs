@@ -1,7 +1,14 @@
-﻿namespace AulersAPI.Services.Interfaces
+﻿using AulersAPI.ApiModels;
+
+namespace AulersAPI.Services.Interfaces
 {
     public interface IMeasurementsService
     {
-        public Task Init
+        Task CreateMeasurementsForUser(int userId);
+
+        Task<MeasurementsDTO> GetUserMeasurements(int userId);
+
+        Task<bool> UpdateMeasurementsForUser(MeasurementsDTO measurementsDTO, int userId);
+
     }
 }

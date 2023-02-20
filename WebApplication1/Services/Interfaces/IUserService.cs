@@ -7,5 +7,7 @@ namespace AulersAPI.Services.Interfaces
         Task<AuthResponse> CreateUser(RegisterDTO registerDTO);
 
         Task<AuthResponse> Login(LoginDTO loginDTO);
+
+        Task<bool> ValidateUserExists(int userId);
     }
 }

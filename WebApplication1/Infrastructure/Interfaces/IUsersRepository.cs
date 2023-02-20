@@ -1,6 +1,6 @@
 ﻿using AulersAPI.Models;
 
-namespace AulersAPI.Infrastructure
+namespace AulersAPI.Infrastructure.Interfaces
 {
     public interface IUsersRepository
     {
@@ -8,6 +8,8 @@ namespace AulersAPI.Infrastructure
 
         Task CreateUser(User user);
 
-        Task<User> GetUser(string userEmail);
+        Task<User> GetUserByEmail(string userEmail);
+
+        Task<User> GetUserById(int userId);
     }
 }

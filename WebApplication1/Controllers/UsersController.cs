@@ -1,6 +1,5 @@
 ﻿using AulersAPI.ApiModels;
-using AulersAPI.Infrastructure;
-using AulersAPI.Models;
+using AulersAPI.Infrastructure.Interfaces;
 using AulersAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
