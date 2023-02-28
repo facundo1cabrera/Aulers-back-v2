@@ -68,10 +68,12 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddTransient<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddTransient<IUsersRepository, UsersRepository>();
 builder.Services.AddTransient<IMeasurementsRepository, MeasurementsRepository>();
+builder.Services.AddTransient<IPurchasesRepository, PurchasesRepository>();
 
 // Inject app services
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IMeasurementsService, MeasurementsService>();
+builder.Services.AddTransient<IPurchasesService, PurchasesService>();
 
 var app = builder.Build();
 
