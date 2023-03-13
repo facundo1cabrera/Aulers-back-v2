@@ -34,5 +34,6 @@ namespace AulersApiTest.Controllers
             var items = Assert.IsType<List<User>>(response.Value);
             Assert.Equal(2, items.Count);
         }
+
     }
 }
