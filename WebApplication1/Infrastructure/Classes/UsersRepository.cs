@@ -1,75 +1,35 @@
 ﻿using AulersAPI.Infrastructure.Interfaces;
 using AulersAPI.Models;
-using Dapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace AulersAPI.Infrastructure.Classes
 {
     public class UsersRepository : IUsersRepository
     {
-        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly AppDbContext _dbContext;
 
-        public UsersRepository(IDbConnectionFactory connectionFactory)
+        public UsersRepository(AppDbContext dbContext)
         {
-            this._connectionFactory = connectionFactory;
+            _dbContext = dbContext;
         }
 
         public async Task<List<User>> GetUsers()
         {
-            using var connection = _connectionFactory.GetConnection();
-            var users = (await connection.QueryAsync<User>(@"
-SELECT 
-    U.Id,
-    U.FirstName,
-    U.LastName,
-    U.Email
-FROM
-    [USERS] U")).ToList();
+            var users = await _dbContext.Users.ToListAsync();
 
             return users;
         }
 
         public async Task<User> GetUserByEmail(string userEmail)
         {
-            using var connection = _connectionFactory.GetConnection();
-            var user = await connection.QueryFirstOrDefaultAsync<User>(@"
-SELECT 
-    U.Id,
-    U.FirstName,
-    U.LastName,
-    U.Email,
-    U.Password,
-    U.IsAdmin
-FROM
-    [USERS] U
-WHERE
-    U.Email=@userEmail",
-            new
-            {
-                @userEmail = userEmail
-            });
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == userEmail);
 
             return user;
         }
 
         public async Task<User> GetUserById(int userId)
         {
-            using var connection = _connectionFactory.GetConnection();
-            var user = await connection.QueryFirstOrDefaultAsync<User>(@"
-SELECT 
-    U.Id,
-    U.FirstName,
-    U.LastName,
-    U.Email,
-    U.Password,
-    U.IsAdmin
-FROM
-    [USERS] U
-WHERE
-    U.Id=@userId",
-            new
-            {
-                @userId = userId
-            });
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
             return user;
         }
@@ -77,28 +37,8 @@ WHERE
 
         public async Task CreateUser(User user)
         {
-            using var connection = _connectionFactory.GetConnection();
-            await connection.QueryAsync(@"
-INSERT INTO [Users]
-(
-    [FirstName], 
-    [LastName],
-    [Email], 
-    [Password]
-) 
-VALUES (
-    @firstname,
-    @lastName,
-    @email,
-    @password
-);",
-            new
-            {
-                @firstname = user.FirstName,
-                @lastname = user.LastName,
-                @email = user.Email,
-                @password = user.Password
-            });
+            _dbContext.Add(user);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  usersmicroservice:
+    container_name: users-microservice
+    image: ${DOCKER_REGISTRY-}usersmicroservice
+    build:
+      context: .
+      dockerfile: WebApplication1/Dockerfile
+    ports: 
+      - 8001:80
+    depends_on:
+      - db
+    networks:
+      - usersmicroservice-net
+  db:
+    container_name: app-db
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+      - 8002:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=admin123aa1!
+    networks:
+      - usersmicroservice-net
+
+networks:
+  usersmicroservice-net:

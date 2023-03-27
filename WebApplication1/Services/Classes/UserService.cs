@@ -14,13 +14,11 @@ namespace AulersAPI.Services.Classes
     public class UserService : IUserService
     {
         private readonly IUsersRepository _usersRepository;
-        private readonly IMeasurementsService _measurementsService;
         private readonly IConfiguration _config;
 
-        public UserService(IUsersRepository usersRepository, IMeasurementsService measurementsService, IConfiguration config)
+        public UserService(IUsersRepository usersRepository, IConfiguration config)
         {
             _usersRepository = usersRepository;
-            _measurementsService = measurementsService;
             _config = config;
         }
 
@@ -41,9 +39,6 @@ namespace AulersAPI.Services.Classes
             };
 
             await _usersRepository.CreateUser(user);
-
-            var userInserted = await _usersRepository.GetUserByEmail(user.Email);
-            await _measurementsService.CreateMeasurementsForUser(userInserted.Id);
 
             return CreateToken(registerDTO.Email, false);
         }

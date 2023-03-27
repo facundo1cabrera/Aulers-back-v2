@@ -1,9 +1,12 @@
+using AulersAPI;
 using AulersAPI.Infrastructure;
 using AulersAPI.Infrastructure.Classes;
 using AulersAPI.Infrastructure.Interfaces;
 using AulersAPI.Services.Classes;
 using AulersAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -67,15 +70,27 @@ builder.Services.AddAuthorization(options =>
 // Inject app repositories
 builder.Services.AddTransient<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddTransient<IUsersRepository, UsersRepository>();
-builder.Services.AddTransient<IMeasurementsRepository, MeasurementsRepository>();
-builder.Services.AddTransient<IPurchasesRepository, PurchasesRepository>();
 
 // Inject app services
 builder.Services.AddTransient<IUserService, UserService>();
-builder.Services.AddTransient<IMeasurementsService, MeasurementsService>();
-builder.Services.AddTransient<IPurchasesService, PurchasesService>();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<AppDbContext>(x => x.UseSqlServer(connectionString));
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var context = scope.ServiceProvider.GetService<AppDbContext>();
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        // Log any errors
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
