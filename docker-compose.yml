@@ -16,8 +16,6 @@ services:
   db:
     container_name: app-db
     image: mcr.microsoft.com/mssql/server:2019-latest
-    ports:
-      - 8002:1433
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=admin123aa1!
