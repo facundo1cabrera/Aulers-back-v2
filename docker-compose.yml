@@ -3,10 +3,7 @@ version: '3.4'
 services:
   usersmicroservice:
     container_name: users-microservice
-    image: ${DOCKER_REGISTRY-}usersmicroservice
-    build:
-      context: .
-      dockerfile: WebApplication1/Dockerfile
+    image: facundo1cabrera/usersmicroservice:v1
     ports: 
       - 8001:80
     depends_on:
@@ -16,11 +13,29 @@ services:
   db:
     container_name: app-db
     image: mcr.microsoft.com/mssql/server:2019-latest
+    user: root
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=admin123aa1!
     networks:
       - usersmicroservice-net
+    volumes:
+      - db-data:/var/opt/mssql/data/
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    hostname: rabbitmq
+    networks:
+      - usersmicroservice-net
 
 networks:
   usersmicroservice-net:
+
+volumes:
+  db-data:
+  rabbitmq-data:

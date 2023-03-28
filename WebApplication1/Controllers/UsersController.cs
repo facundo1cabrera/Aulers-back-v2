@@ -14,6 +14,7 @@ namespace AulersAPI.Controllers
         private readonly IUsersRepository _usersRepository;
         private readonly IUserService _userService;
 
+
         public UsersController(IUsersRepository usersRepository, IUserService userService)
         {
             _usersRepository = usersRepository;
@@ -21,7 +22,7 @@ namespace AulersAPI.Controllers
         }
 
         [HttpGet]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _usersRepository.GetUsers();

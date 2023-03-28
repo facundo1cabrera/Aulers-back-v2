@@ -4,12 +4,15 @@ using AulersAPI.Infrastructure.Classes;
 using AulersAPI.Infrastructure.Interfaces;
 using AulersAPI.Services.Classes;
 using AulersAPI.Services.Interfaces;
+using MassTransit;
+using MassTransit.Definition;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using UsersMicroservice;
+using UsersMicroservice.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +79,19 @@ builder.Services.AddTransient<IUserService, UserService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(x => x.UseSqlServer(connectionString));
+
+var serviceSettings = builder.Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        var rabbitMQSettings = builder.Configuration.GetSection(nameof(RabbitMQSettings)).Get<RabbitMQSettings>();
+        cfg.Host(rabbitMQSettings.Host);
+        cfg.ConfigureEndpoints(context, new KebabCaseEndpointNameFormatter(serviceSettings.ServiceName, false));
+    });
+});
+
+builder.Services.AddMassTransitHostedService();
 
 var app = builder.Build();
 

@@ -4,10 +4,12 @@ using AulersAPI.Infrastructure.Interfaces;
 using AulersAPI.Models;
 using AulersAPI.Services.Interfaces;
 using AulersAPI.Utils;
+using MassTransit;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using UsersMicroservice.Clients;
 
 namespace AulersAPI.Services.Classes
 {
@@ -15,11 +17,13 @@ namespace AulersAPI.Services.Classes
     {
         private readonly IUsersRepository _usersRepository;
         private readonly IConfiguration _config;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public UserService(IUsersRepository usersRepository, IConfiguration config)
+        public UserService(IUsersRepository usersRepository, IConfiguration config, IPublishEndpoint publishEndpoint)
         {
             _usersRepository = usersRepository;
             _config = config;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<AuthResponse> CreateUser(RegisterDTO registerDTO)
@@ -39,6 +43,10 @@ namespace AulersAPI.Services.Classes
             };
 
             await _usersRepository.CreateUser(user);
+
+            var userId = await _usersRepository.GetUserByEmail(registerDTO.Email);
+
+            await _publishEndpoint.Publish(new UserCreated(userId.Id, registerDTO.Email, registerDTO.FirstName));
 
             return CreateToken(registerDTO.Email, false);
         }
