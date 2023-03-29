@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using UsersMicroservice;
+using UsersMicroservice.Services.MassTransit;
 using UsersMicroservice.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -80,18 +81,7 @@ builder.Services.AddTransient<IUserService, UserService>();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(x => x.UseSqlServer(connectionString));
 
-var serviceSettings = builder.Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
-builder.Services.AddMassTransit(x =>
-{
-    x.UsingRabbitMq((context, cfg) =>
-    {
-        var rabbitMQSettings = builder.Configuration.GetSection(nameof(RabbitMQSettings)).Get<RabbitMQSettings>();
-        cfg.Host(rabbitMQSettings.Host);
-        cfg.ConfigureEndpoints(context, new KebabCaseEndpointNameFormatter(serviceSettings.ServiceName, false));
-    });
-});
-
-builder.Services.AddMassTransitHostedService();
+builder.Services.AddMassTransitWithRabbitMq();
 
 var app = builder.Build();
 
