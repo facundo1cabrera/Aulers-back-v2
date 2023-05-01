@@ -4,16 +4,11 @@ using AulersAPI.Infrastructure.Classes;
 using AulersAPI.Infrastructure.Interfaces;
 using AulersAPI.Services.Classes;
 using AulersAPI.Services.Interfaces;
-using MassTransit;
-using MassTransit.Definition;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using UsersMicroservice;
-using UsersMicroservice.Services.MassTransit;
-using UsersMicroservice.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,7 +68,7 @@ builder.Services.AddAuthorization(options =>
 
 // Inject app repositories
 builder.Services.AddTransient<IDbConnectionFactory, DbConnectionFactory>();
-builder.Services.AddTransient<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
 // Inject app services
 builder.Services.AddTransient<IUserService, UserService>();
@@ -81,22 +76,7 @@ builder.Services.AddTransient<IUserService, UserService>();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(x => x.UseSqlServer(connectionString));
 
-builder.Services.AddMassTransitWithRabbitMq();
-
 var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
-{
-    try
-    {
-        var context = scope.ServiceProvider.GetService<AppDbContext>();
-        context.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        // Log any errors
-    }
-}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,7 +1,0 @@
-﻿CREATE TABLE [dbo].[Purchases]
-(
-	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
-	[ClothesId] INT NOT NULL,
-	[UserId] INT NOT NULL,
-	[PurchaseDate] DATETIME NOT NULL
-)
