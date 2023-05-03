@@ -1,3 +1,4 @@
+using AulersApi.AulersSecurity;
 using AulersAPI;
 using AulersAPI.Infrastructure;
 using AulersAPI.Infrastructure.Classes;
@@ -47,24 +48,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Inject app basics
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-    };
-});
-
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("IsAdmin", policy => policy.RequireClaim("isAdmin"));
-});
+builder.Services.AddAulersSecurity(builder.Configuration);
 
 // Inject app repositories
 builder.Services.AddTransient<IDbConnectionFactory, DbConnectionFactory>();

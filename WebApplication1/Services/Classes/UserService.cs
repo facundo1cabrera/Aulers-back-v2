@@ -73,7 +73,8 @@ namespace AulersAPI.Services.Classes
                 new Claim(JwtRegisteredClaimNames.Sub, jwt.Subject),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
-                new Claim("email", email),
+                new Claim("accountname", email),
+                new Claim(JwtRegisteredClaimNames.Name, email),
             };
 
             if (isAdmin)
